@@ -54,10 +54,12 @@ Core dataset properties:
 
 ```text
 AgriPath-Publication/
-|-- dataset_scripts/                  # Dataset modifiers and split-generation utilities
-|   |-- custom_labels.py              # Adds crop_disease_label / numeric_label columns
-|   |-- downsampler_split.py          # Builds the LF16-30k benchmark from the larger source dataset
-|   `-- lab_field_separator.py        # Creates LAB and FIELD dataset variants
+|-- dataset_scripts/                        # Dataset modifiers and split-generation utilities
+|   |-- clean_hash_leakage_test_split.py    # Removes flagged test leakage samples and pushes a cleaned dataset
+|   |-- custom_labels.py                    # Adds crop_disease_label / numeric_label columns
+|   |-- detect_leakage_imagehash.py         # Detects duplicate and near-duplicate split leakage with perceptual hashes
+|   |-- downsampler_split.py                # Builds the LF16-30k benchmark from the larger source dataset
+|   `-- lab_field_separator.py              # Creates LAB and FIELD dataset variants
 |-- model_scripts/
 |   |-- cnn/
 |   |   |-- cnn_lightning.py          # Modular Lightning data module + CNN training entry point
@@ -227,6 +229,8 @@ The new `dataset_scripts/` directory contains the dataset construction helpers u
 - `downsampler_split.py`: downsamples the larger `AgriPath-LF16` source dataset into the balanced `AgriPath-LF16-30k` benchmark
 - `lab_field_separator.py`: derives source-specific LAB and FIELD variants from the full benchmark
 - `custom_labels.py`: adds `crop_disease_label` and `numeric_label` columns for downstream model pipelines
+- `detect_leakage_imagehash.py`: uses perceptual image hashes to flag intra-split hard duplicates and train-to-validation/test near-duplicate leakage, writing the flagged pairs to CSV
+- `clean_hash_leakage_test_split.py`: reads a leakage report, removes flagged test samples, preserves the train/validation splits, and pushes a cleaned dataset variant to Hugging Face Hub
 
 These scripts are primarily data-engineering utilities and are meant to be run selectively when rebuilding or extending the dataset assets on Hugging Face Hub.
 
